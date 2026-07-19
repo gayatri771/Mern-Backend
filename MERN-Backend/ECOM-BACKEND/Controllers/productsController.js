@@ -16,7 +16,7 @@ exports.getproducts = async (req, res) => {
     let shipment = req.query.location;
     let allproducts = await products.find().limit(maxlimit);
     if (shipment === 'India') {
-      return res.json({` msg: made in ${shipment}` });
+      return res.json({ msg: `made in ${shipment}` });
     }
     return res.json(allproducts);
   } catch (error) {
