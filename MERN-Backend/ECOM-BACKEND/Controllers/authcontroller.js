@@ -1,53 +1,46 @@
-let users = require('../models/usermodel')
-let bcrypt = require('bcrypt')
-let jwt = require('jsonwebtoken')
-const mail = require('../utils/gmail')
-
-const SECRET_KEY = process.env.JWT_SECRET
+const jwt = require('jsonwebtoken');
+let users = require('../models/usermodel');
+let bcrypt = require('bcrypt');
+let mail;
+try { mail = require('../../Utils/gmail'); } catch(e) { mail = () => {}; }
+const dotenv = require('dotenv');
 
 exports.register = async (req, res) => {
   try {
-    const { username, password, email, role } = req.body
-    // 1) check the fields
+    const { username, password, email, role } = req.body;
     if (!username || !password || !email || !role)
-      return res.json({ "msg": "missing fields" })
-    // 2) check if user already exists
-    let checkuser = await users.findOne({ username })
-    if (checkuser) return res.json({ msg: "user already exists" })
-    // 3) store user data in db
-    let hashedpassword = await bcrypt.hash(password, 10)
+      return res.json({ msg: 'missing fields' });
 
-    await users.create({ username, password: hashedpassword, email, role })
+    let checkuser = await users.findOne({ username });
+    if (checkuser) return res.json({ msg: 'user already exist' });
 
-    // generate a token
-    let payload = { username: username }
-    let token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' })
+    let hashedpassword = await bcrypt.hash(password, 10);
+    await users.create({ username, password: hashedpassword, email, role });
 
-    res.json({ "msg": "Registration successful", token })
-
-    mail(email, username).catch(err => console.log("Email failed:", err.message))
+    let payload = { username: username };
+    let secretkey = 'rohan123';
+    let token = jwt.sign(payload, secretkey, { expiresIn: '1hr' });
+    res.json({ msg: 'Registraion Sucessfull', token });
+    mail(email, username);
   } catch (error) {
-    res.json({ "msg": error.message })
+    res.json({ msg: error.message });
   }
-}
+};
 
 exports.login = async (req, res) => {
   try {
-    const { username, password } = req.body
-    if (!username || !password)
-      return res.json({ "msg": "missing fields" })
+    const { username, password } = req.body;
+    if (!username || !password) return res.json({ msg: 'missing fields' });
 
-    let userdetails = await users.findOne({ username })
-    if (!userdetails) return res.json({ "msg": "invalid credentials" })
+    let userdetails = await users.findOne({ username });
+    if (!userdetails) return res.json({ msg: 'invalid credentials' });
 
-    let checkpassword = await bcrypt.compare(password, userdetails.password)
-    if (!checkpassword) return res.json({ "msg": "invalid credentials" })
+    let checkpassword = await bcrypt.compare(password, userdetails.password);
+    if (!checkpassword) return res.json({ msg: 'invalid credentials' });
 
-    let payload = { username: userdetails.username }
-    let token = jwt.sign(payload, SECRET_KEY, { expiresIn: '1h' })
-
-    res.json({ "msg": "login successful", token })
+    let currentlocation = req.headers.location;
+    res.json({ msg: 'login successful', currentlocation });
   } catch (error) {
-    res.json({ "msg": error.message })
+    res.json({ msg: error.message });
   }
-}
+};
