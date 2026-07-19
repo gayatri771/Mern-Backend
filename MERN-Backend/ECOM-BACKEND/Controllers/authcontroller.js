@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 let users = require('../models/usermodel');
 let bcrypt = require('bcrypt');
 let mail;
-try { mail = require('../../Utils/gmail'); } catch(e) { mail = () => {}; }
+try { mail = require('../../utils/gmail'); } catch(e) { mail = () => {}; }
 const dotenv = require('dotenv');
 
 exports.register = async (req, res) => {
