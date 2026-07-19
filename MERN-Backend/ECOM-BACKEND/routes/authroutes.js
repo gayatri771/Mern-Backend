@@ -1,3 +1,6 @@
-const {Routes}=require('express');              // ❌ should be {Router}
-const{register,login}=require('../controllers/authcontroller')  // ❌ should be '../Controllers/authcontroller' (capital C)
-let router=Router(); 
+const {Router} = require('express');
+const {register, login} = require('../Controllers/authcontroller')
+let router = Router();
+router.post('/register', register)
+router.post('/login', login)
+module.exports = router
